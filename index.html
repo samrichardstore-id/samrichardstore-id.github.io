@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sam Richard Store</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--tx:#111827;--mu:#6b7280;--br:#e5e7eb;--pr:#4f46e5;--prt:#fff;--ok:#059669;--bad:#dc2626;--warn:#d97706;--sh:0 1px 3px rgba(0,0,0,.08);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1220;--card:#1a1e33;--tx:#eef0f8;--mu:#9aa1bb;--br:#2b3050;--pr:#818cf8;--prt:#0f1220;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--sh:none}}
+:root[data-theme="dark"]{--bg:#0f1220;--card:#1a1e33;--tx:#eef0f8;--mu:#9aa1bb;--br:#2b3050;--pr:#818cf8;--prt:#0f1220;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--sh:none}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:78px}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--card);border-bottom:1px solid var(--br);padding:12px 16px;z-index:5;display:flex;align-items:center;justify-content:space-between}
+h1{font-size:18px;margin:0}h1 span{color:var(--pr)}
+h2{font-size:16px;margin:0 0 10px}
+main{max-width:760px;margin:0 auto;padding:14px}
+.v{display:none}.v.on{display:block}
+.card{background:var(--card);border:1px solid var(--br);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.k{background:var(--card);border:1px solid var(--br);border-radius:14px;padding:12px;box-shadow:var(--sh)}
+.k small{color:var(--mu);display:block;font-size:12px}.k b{font-size:17px;word-break:break-word}
+.pos{color:var(--ok)}.neg{color:var(--bad)}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px;border:1px solid var(--br);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+button{font:inherit;border:0;border-radius:10px;padding:11px 14px;background:var(--pr);color:var(--prt);font-weight:600}
+button.s{background:transparent;color:var(--pr);border:1px solid var(--pr)}
+button.d{background:var(--bad);color:#fff}
+button.sm{padding:6px 10px;font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
+.item{border-top:1px solid var(--br);padding:10px 0;display:flex;gap:10px}
+.item:first-child{border-top:0}
+.item img{width:54px;height:54px;object-fit:cover;border-radius:8px;flex:none}
+.item .i{flex:1;min-width:0}.item .n{font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--br);color:var(--mu)}
+.tag.Terjual{color:var(--ok);border-color:var(--ok)}.tag.Dibatalkan{color:var(--mu)}.tag.Tersedia{color:var(--warn);border-color:var(--warn)}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--br);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:6}
+nav button{flex:1;background:none;color:var(--mu);border-radius:0;padding:10px 2px;font-size:11px}
+nav button.on{color:var(--pr)}nav button i{display:block;font-style:normal;font-size:19px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--br);white-space:nowrap}th:first-child,td:first-child{text-align:left}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:99px;opacity:0;transition:.2s;pointer-events:none;z-index:20;max-width:90%}
+#toast.on{opacity:1}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:30;padding:20px}
+#modal.on{display:flex}#modal .card{max-width:340px;width:100%}
+.warnb{background:var(--card);border:1px solid var(--warn);color:var(--warn);padding:10px;border-radius:10px;margin-bottom:12px;font-size:13px}
+.muted{color:var(--mu);font-size:13px}
+</style>
+</head>
+<body>
+<header><h1>Sam Richard <span>Store</span></h1><span class="muted" id="hd"></span><button class="s sm" id="lo" style="display:none">Keluar</button></header>
+<main>
+<div id="warn" class="warnb" style="display:none">Penyimpanan browser tidak tersedia. Data hanya sementara — segera ekspor cadangan.</div>
+
+<section id="v-dash" class="v on">
+ <div class="grid" id="kpi"></div>
+ <div class="card" style="margin-top:12px"><h2>Omzet &amp; Laba (6 bulan terakhir)</h2><div id="ch1"></div></div>
+ <div class="card"><h2>Transaksi terbaru</h2><div id="recent"></div></div>
+</section>
+
+<section id="v-add" class="v">
+ <form class="card" id="f" onsubmit="return false">
+  <h2 id="ft">Tambah Transaksi</h2>
+  <label>Tanggal</label><input type="date" id="tgl" required>
+  <label>Nama game</label><input id="game" list="gl" placeholder="Clash of Clans, eFootball…" required><datalist id="gl"></datalist>
+  <label>Nama akun</label><input id="akun" required placeholder="mis. TH14 Max">
+  <label>Tagar / ID game</label><input id="tag" placeholder="mis. #P2LYQ8 atau 123456789" autocapitalize="characters">
+  <label>Email / ID referensi</label><input id="ref" placeholder="opsional">
+  <label>Foto akun (opsional)</label><input type="file" id="foto" accept="image/*"><img id="prev" style="display:none;width:90px;border-radius:8px;margin-top:6px">
+  <label>Harga beli (Rp)</label><input type="number" inputmode="numeric" min="0" id="beli" value="0">
+  <label>Harga negosiasi (Rp)</label><input type="number" inputmode="numeric" min="0" id="nego" value="0">
+  <label>Harga jual final (Rp)</label><input type="number" inputmode="numeric" min="0" id="jual" value="0">
+  <label>Status</label><select id="status"><option>Tersedia</option><option>Terjual</option><option>Dibatalkan</option></select>
+  <label>Catatan</label><textarea id="cat" rows="2"></textarea>
+  <div class="card" style="margin:12px 0 0"><small class="muted">Perkiraan hasil</small><div><b id="pv">-</b></div></div>
+  <div class="row" style="margin-top:12px"><button id="sv">Simpan</button><button type="button" class="s" id="cn">Batal</button></div>
+ </form>
+</section>
+
+<section id="v-list" class="v">
+ <div class="card">
+  <input id="q" placeholder="Cari nama akun, game, ID, catatan…">
+  <div class="row" style="margin-top:8px"><select id="fg"><option value="">Semua game</option></select><select id="fs"><option value="">Semua status</option><option>Tersedia</option><option>Terjual</option><option>Dibatalkan</option></select></div>
+  <div class="row" style="margin-top:8px"><input type="date" id="d1"><input type="date" id="d2"></div>
+  <div class="row" style="margin-top:8px"><button class="s sm" id="rf">Reset filter</button></div>
+ </div>
+ <div class="card"><div class="muted" id="cnt"></div><div id="list"></div></div>
+</section>
+
+<section id="v-rec" class="v">
+ <div class="card"><h2>Rekap Laba-Rugi</h2>
+  <select id="per"><option value="10">Harian</option><option value="7" selected>Bulanan</option><option value="4">Tahunan</option></select>
+  <div id="ch2" style="margin-top:10px"></div></div>
+ <div class="card tw"><div id="tb"></div></div>
+ <p class="muted">Rekap hanya menghitung akun berstatus Terjual, berdasarkan tanggal transaksi.</p>
+</section>
+
+<section id="v-data" class="v">
+ <div class="card"><h2>Cadangan Data</h2>
+  <p class="muted">Data tersimpan di database Supabase milik Anda, bisa dibuka dari HP mana pun setelah login. Tetap ekspor cadangan berkala.</p>
+  <div class="row"><button id="xc">Ekspor CSV</button><button id="xj" class="s">Cadangan lengkap (JSON + foto)</button></div>
+  <label>Impor CSV atau JSON</label><input type="file" id="imp" accept=".csv,.json,text/csv,application/json">
+  <p class="muted">CSV tidak memuat foto. Impor menambahkan data ke data yang ada (JSON dengan opsi ganti).</p>
+ </div>
+ <div class="card"><h2>Data Contoh</h2><div class="row"><button class="s" id="ls">Muat contoh</button><button class="d" id="ds">Hapus contoh</button></div></div>
+ <div class="card"><h2>Zona Bahaya</h2><button class="d" id="da">Hapus semua data</button></div>
+</section>
+</main>
+<nav>
+ <button data-v="dash" class="on"><i>📊</i>Dashboard</button>
+ <button data-v="list"><i>🧾</i>Riwayat</button>
+ <button data-v="add"><i>➕</i>Tambah</button>
+ <button data-v="rec"><i>📈</i>Rekap</button>
+ <button data-v="data"><i>💾</i>Data</button>
+</nav>
+<div id="lg" style="position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
+ <form class="card" style="max-width:360px;width:100%" onsubmit="return false"><h2 style="font-size:20px">Sam Richard <span style="color:var(--pr)">Store</span></h2><p class="muted" style="margin-top:0">Masuk untuk membuka data. Hanya untuk pemilik.</p>
+ <label>Email</label><input type="email" id="em" autocomplete="username"><label>Kata sandi</label><input type="password" id="pw" autocomplete="current-password">
+ <p id="lerr" class="neg" style="min-height:20px;margin:8px 0"></p><button id="li" style="width:100%">Masuk</button></form></div>
+<div id="toast"></div>
+<div id="modal"><div class="card"><p id="mt" style="margin-top:0"></p><div class="row"><button class="s" id="mn">Batal</button><button class="d" id="my">Ya</button></div></div></div>
+
+<script>
+/* === ISI DUA BARIS INI (Supabase > Project Settings > API) === */
+const SUPABASE_URL='https://dqpupsapjcspdtbepvtc.supabase.co';
+const SUPABASE_KEY='sb_publishable_J-nmSDWiDq1peG1oNWleiw_f8eDp2xv';
+/* ============================================================== */
+const sb=(window.supabase&&!SUPABASE_URL.startsWith('ISI'))?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+let D=[],editId=null,fotoData='',okStore=true;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const rp=n=>(n<0?'-':'')+'Rp'+Math.abs(Math.round(n||0)).toLocaleString('id-ID');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const profit=t=>t.status==='Terjual'?(+t.jual||0)-(+t.beli||0):0;
+
+const T=()=>sb.from('transaksi');
+const fail=e=>{if(e)toast('Gagal: '+e.message);return !e};
+async function load(){const{data,error}=await T().select('*').order('tgl',{ascending:false});if(error){fail(error);D=[]}else D=data}
+async function dbUp(rows){const{error}=await T().upsert(rows.map(t=>{const{user_id,created_at,...r}=t;return r}));return fail(error)}
+async function dbDel(id){return fail((await T().delete().eq('id',id)).error)}
+async function dbDelSample(){return fail((await T().delete().eq('sample',true)).error)}
+async function dbDelAll(){return fail((await T().delete().neq('id','')).error)}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+function ask(msg,yes='Ya'){return new Promise(r=>{$('#mt').textContent=msg;$('#my').textContent=yes;$('#modal').classList.add('on');const c=v=>{$('#modal').classList.remove('on');$('#my').onclick=$('#mn').onclick=null;r(v)};$('#my').onclick=()=>c(true);$('#mn').onclick=()=>c(false)})}
+
+/* navigasi */
+function go(v){$$('.v').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(v==='add'&&!editId)resetForm();scrollTo(0,0);render()}
+$$('nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+
+/* form */
+function resetForm(){editId=null;fotoData='';$('#f').reset();$('#tgl').value=today();$('#prev').style.display='none';$('#ft').textContent='Tambah Transaksi';preview()}
+function preview(){const b=+$('#beli').value||0,j=+$('#jual').value||0,s=$('#status').value;let h='-',c='';
+ if(s==='Terjual'){const p=j-b;h=(p>=0?'Laba ':'Rugi ')+rp(Math.abs(p));c=p>=0?'pos':'neg'}else if(s==='Dibatalkan')h='Tidak dihitung';else h='Menunggu terjual (modal '+rp(b)+')';
+ $('#pv').textContent=h;$('#pv').className=c}
+['beli','jual','status'].forEach(i=>$('#'+i).addEventListener('input',preview));
+$('#foto').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const m=480,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);fotoData=c.toDataURL('image/jpeg',.6);$('#prev').src=fotoData;$('#prev').style.display='block';URL.revokeObjectURL(u)};im.onerror=()=>toast('Foto tidak bisa dibaca');im.src=u};
+$('#sv').onclick=async()=>{
+ if(!$('#f').reportValidity())return;
+ const t={id:editId||uid(),tgl:$('#tgl').value,game:$('#game').value.trim(),akun:$('#akun').value.trim(),tag:$('#tag').value.trim(),ref:$('#ref').value.trim(),foto:fotoData,beli:+$('#beli').value||0,jual:+$('#jual').value||0,nego:+$('#nego').value||0,status:$('#status').value,cat:$('#cat').value.trim()};
+ if(t.status==='Terjual'&&t.jual<=0){toast('Isi harga jual final untuk status Terjual');return}
+ const old=editId&&D.find(x=>x.id===editId);if(old)t.sample=old.sample;
+ $('#sv').disabled=true;const ok=await dbUp([t]);$('#sv').disabled=false;if(!ok)return;
+ if(old)D[D.indexOf(old)]=t;else D.unshift(t);
+ toast(old?'Perubahan disimpan':'Transaksi disimpan');editId=null;go('list')};
+$('#cn').onclick=()=>{editId=null;go('list')};
+function edit(id){const t=D.find(x=>x.id===id);if(!t)return;editId=id;go('add');$('#ft').textContent='Edit Transaksi';
+ ['tgl','game','akun','tag','ref','beli','jual','nego','status','cat'].forEach(k=>$('#'+k).value=t[k]??'');fotoData=t.foto||'';
+ if(fotoData){$('#prev').src=fotoData;$('#prev').style.display='block'}preview()}
+async function del(id){if(await ask('Hapus transaksi ini? Tindakan tidak bisa dibatalkan.','Hapus')){if(await dbDel(id)){D=D.filter(x=>x.id!==id);toast('Dihapus');render()}}}
+
+/* tampilan */
+function row(t){const p=profit(t),l=t.status==='Terjual'?`<span class="${p>=0?'pos':'neg'}">${p>=0?'Laba':'Rugi'} ${rp(Math.abs(p))}</span>`:'';
+ return`<div class="item">${t.foto?`<img src="${t.foto}" alt="">`:''}<div class="i"><div class="n">${esc(t.akun)}</div><div class="muted">${esc(t.game)} · ${esc(t.tgl)}${t.tag?' · ID '+esc(t.tag):''}${t.ref?' · '+esc(t.ref):''}</div><div class="muted">Beli ${rp(t.beli)}${t.jual?' · Jual '+rp(t.jual):''}${t.nego?' · Nego '+rp(t.nego):''}</div><div><span class="tag ${t.status}">${t.status}</span> ${l}</div>${t.cat?`<div class="muted">${esc(t.cat)}</div>`:''}
+ <div class="row" style="margin-top:6px"><button class="s sm" onclick="edit('${t.id}')">Edit</button><button class="d sm" onclick="del('${t.id}')">Hapus</button></div></div></div>`}
+function group(len){const m={};D.filter(t=>t.status==='Terjual').forEach(t=>{const k=t.tgl.slice(0,len),g=m[k]||(m[k]={k,n:0,om:0,md:0,lb:0,rg:0});const p=profit(t);g.n++;g.om+=+t.jual;g.md+=+t.beli;p>=0?g.lb+=p:g.rg+=-p});return Object.values(m).sort((a,b)=>a.k<b.k?-1:1)}
+function chart(el,rows){if(!rows.length){el.innerHTML='<p class="muted">Belum ada penjualan untuk digrafikkan.</p>';return}
+ const W=340,H=180,pl=6,mx=Math.max(1,...rows.map(r=>Math.max(r.om,r.lb-r.rg))),mn=Math.min(0,...rows.map(r=>r.lb-r.rg)),rg=mx-mn,y=v=>10+(mx-v)/rg*(H-40),bw=Math.min(18,(W-pl*2)/rows.length/2.4);let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Grafik omzet dan laba"><line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--br)"/>`;
+ rows.forEach((r,i)=>{const cx=pl+(i+.5)*(W-pl*2)/rows.length,n=r.lb-r.rg;
+  s+=`<rect x="${cx-bw-1}" y="${Math.min(y(r.om),y(0))}" width="${bw}" height="${Math.abs(y(r.om)-y(0))}" rx="3" fill="var(--pr)"/><rect x="${cx+1}" y="${Math.min(y(n),y(0))}" width="${bw}" height="${Math.abs(y(n)-y(0))}" rx="3" fill="${n>=0?'var(--ok)':'var(--bad)'}"/><text x="${cx}" y="${H-6}" font-size="9" text-anchor="middle" fill="var(--mu)">${esc(r.k.length>7?r.k.slice(5):r.k.slice(2))}</text>`});
+ el.innerHTML=s+`</svg><div class="muted"><span style="color:var(--pr)">■</span> Omzet &nbsp;<span class="pos">■</span> Laba (merah = rugi)</div>`}
+function render(){
+ const act=D.filter(t=>t.status!=='Dibatalkan'),sold=D.filter(t=>t.status==='Terjual');
+ const modal=act.reduce((a,t)=>a+(+t.beli||0),0),om=sold.reduce((a,t)=>a+(+t.jual||0),0),lb=sold.reduce((a,t)=>a+profit(t),0),rug=sold.reduce((a,t)=>a+Math.min(0,profit(t)),0);
+ $('#kpi').innerHTML=[['Total modal',rp(modal),''],['Omzet penjualan',rp(om),''],['Laba bersih',rp(lb),lb<0?'neg':'pos'],['Total kerugian',rp(rug),rug<0?'neg':''],['Total transaksi',D.length,''],['Akun tersedia',D.filter(t=>t.status==='Tersedia').length,''],['Akun terjual',sold.length,'']].map(x=>`<div class="k"><small>${x[0]}</small><b class="${x[2]}">${x[1]}</b></div>`).join('');
+ chart($('#ch1'),group(7).slice(-6));
+ $('#recent').innerHTML=D.slice(0,3).map(row).join('')||'<p class="muted">Belum ada transaksi. Tambah transaksi atau muat contoh di tab Data.</p>';
+ // filter
+ const games=[...new Set(D.map(t=>t.game))].sort();$('#gl').innerHTML=games.map(g=>`<option value="${esc(g)}">`).join('');
+ const fg=$('#fg'),cur=fg.value;fg.innerHTML='<option value="">Semua game</option>'+games.map(g=>`<option ${g===cur?'selected':''}>${esc(g)}</option>`).join('');
+ const q=$('#q').value.toLowerCase(),s=$('#fs').value,a=$('#d1').value,b=$('#d2').value,g=fg.value;
+ const L=D.filter(t=>(!g||t.game===g)&&(!s||t.status===s)&&(!a||t.tgl>=a)&&(!b||t.tgl<=b)&&(!q||[t.akun,t.game,t.tag,t.ref,t.cat].join(' ').toLowerCase().includes(q))).sort((x,y)=>x.tgl<y.tgl?1:-1);
+ $('#cnt').textContent=L.length+' transaksi';$('#list').innerHTML=L.map(row).join('')||'<p class="muted">Tidak ada data yang cocok.</p>';
+ // rekap
+ const R=group(+$('#per').value);chart($('#ch2'),R.slice(-12));
+ $('#tb').innerHTML=R.length?`<table><tr><th>Periode</th><th>Akun</th><th>Omzet</th><th>Modal</th><th>Laba</th><th>Rugi</th><th>Bersih</th></tr>${R.slice().reverse().map(r=>`<tr><td>${r.k}</td><td>${r.n}</td><td>${rp(r.om)}</td><td>${rp(r.md)}</td><td class="pos">${rp(r.lb)}</td><td class="neg">${rp(-r.rg)}</td><td class="${r.lb-r.rg<0?'neg':'pos'}">${rp(r.lb-r.rg)}</td></tr>`).join('')}</table>`:'<p class="muted">Belum ada akun terjual.</p>';
+ $('#hd').textContent=D.length+' data'}
+['q','fg','fs','d1','d2','per'].forEach(i=>$('#'+i).addEventListener('input',render));
+$('#rf').onclick=()=>{['q','fg','fs','d1','d2'].forEach(i=>$('#'+i).value='');render()};
+
+/* CSV */
+const HEAD=['id','tanggal','game','akun','tag','ref','beli','jual','nego','status','catatan'];
+const cell=v=>{v=String(v??'');return /[",\n;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+function toCSV(){return '\ufeff'+[HEAD.join(',')].concat(D.map(t=>[t.id,t.tgl,t.game,t.akun,t.tag,t.ref,t.beli,t.jual,t.nego,t.status,t.cat].map(cell).join(','))).join('\r\n')}
+function parseCSV(txt){txt=txt.replace(/^\ufeff/,'');const first=txt.split(/\r?\n/)[0],sep=(first.split(';').length>first.split(',').length)?';':',';const rows=[];let r=[],c='',q=false;
+ for(let i=0;i<txt.length;i++){const ch=txt[i];if(q){if(ch==='"'){if(txt[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}else if(ch==='"')q=true;else if(ch===sep){r.push(c);c=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&txt[i+1]==='\n')i++;r.push(c);rows.push(r);r=[];c=''}else c+=ch}
+ if(c||r.length){r.push(c);rows.push(r)}return rows.filter(x=>x.some(v=>v.trim()))}
+function dl(name,data){const b=new Blob([data],{type:name.endsWith('.json')?'application/json':'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast('File diunduh')}
+$('#xc').onclick=()=>D.length?dl('sam-richard-store-'+today()+'.csv',toCSV()):toast('Belum ada data');
+$('#xj').onclick=()=>D.length?dl('sam-richard-store-'+today()+'.json',JSON.stringify({app:'srs',v:1,data:D})):toast('Belum ada data');
+$('#imp').onchange=async e=>{const f=e.target.files[0];if(!f)return;e.target.value='';const txt=await f.text();let add=[],replaceAll=false;
+ try{if(f.name.toLowerCase().endsWith('.json')){const j=JSON.parse(txt);add=(j.data||j).map(t=>({...t,id:t.id||uid()}));
+   if(await ask('Ganti SEMUA data saat ini dengan isi cadangan ('+add.length+' transaksi)? Pilih Batal untuk menambahkan saja.','Ganti semua')){replaceAll=true}}
+  else{const R=parseCSV(txt),h=R[0].map(x=>x.trim().toLowerCase());const ix=k=>h.indexOf(k);if(ix('akun')<0||ix('game')<0)throw 0;
+   add=R.slice(1).map(r=>{const g=k=>(r[ix(k)]||'').trim();return{id:uid(),tgl:g('tanggal')||today(),game:g('game'),akun:g('akun'),tag:g('tag'),ref:g('ref'),foto:'',beli:+g('beli')||0,jual:+g('jual')||0,nego:+g('nego')||0,status:['Tersedia','Terjual','Dibatalkan'].includes(g('status'))?g('status'):'Tersedia',cat:g('catatan')}}).filter(t=>t.akun&&t.game)}}
+ catch(x){toast('File tidak dikenali. Gunakan hasil ekspor aplikasi ini.');return}
+ if(replaceAll&&!await dbDelAll())return;if(!await dbUp(add))return;await load();toast(add.length+' transaksi diimpor');render()};
+
+/* contoh data */
+$('#ls').onclick=async()=>{const n=new Date(),d=k=>{const x=new Date(n);x.setDate(x.getDate()-k);return new Date(x-x.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+ const S=[['Clash of Clans','TH13 Rush',350000,520000,'Terjual',2],['Clash of Clans','TH15 Max Hero',1200000,1100000,'Terjual',9],['eFootball Mobile','Akun Epic Messi',800000,1250000,'Terjual',20],['Mobile Legends','Mythic Glory 80 skin',600000,0,'Tersedia',1],['PUBG Mobile','Conqueror S20',450000,0,'Tersedia',4],['Free Fire','Heroic 50 skin',200000,0,'Dibatalkan',12],['eFootball Mobile','Akun Barca Legend',900000,1400000,'Terjual',45],['Clash of Clans','TH12 Farming',250000,430000,'Terjual',70]];
+ const N=S.map(s=>({id:uid(),sample:true,tgl:d(s[5]),game:s[0],akun:s[1],ref:'contoh-'+s[1].slice(0,3).toLowerCase()+'@mail.com',foto:'',beli:s[2],jual:s[3],nego:Math.round(s[3]*.95),status:s[4],cat:'Data contoh'}));if(await dbUp(N)){await load();toast('Contoh dimuat');render()}};
+$('#ds').onclick=async()=>{const n=D.filter(t=>t.sample).length;if(!n)return toast('Tidak ada data contoh');if(await ask('Hapus '+n+' data contoh? Data asli Anda tidak ikut terhapus.','Hapus')){if(await dbDelSample()){D=D.filter(t=>!t.sample);render();toast('Contoh dihapus')}}};
+$('#da').onclick=async()=>{if(await ask('Hapus SEMUA data? Pastikan sudah ekspor cadangan.','Hapus semua')){if(await dbDelAll()){D=[];render();toast('Semua data dihapus')}}};
+
+const showLogin=()=>{$('#lg').style.display='flex';$('#lo').style.display='none'};
+async function boot(){if(!sb){$('#lerr').textContent=SUPABASE_URL.startsWith('ISI')?'Isi SUPABASE_URL dan SUPABASE_KEY di index.html dulu.':'Pustaka Supabase gagal dimuat. Periksa internet atau buka lewat browser.';return}
+ const{data:{session}}=await sb.auth.getSession();if(!session){showLogin();return}
+ $('#lg').style.display='none';$('#lo').style.display='';await load();resetForm();render()}
+$('#li').onclick=async()=>{$('#lerr').textContent='';$('#li').disabled=true;const{error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});$('#li').disabled=false;
+ if(error){$('#lerr').textContent='Email atau kata sandi salah.';return}$('#pw').value='';boot()};
+$('#lo').onclick=async()=>{await sb.auth.signOut();D=[];render();showLogin()};
+boot();
+</script>
+</body>
+</html>
