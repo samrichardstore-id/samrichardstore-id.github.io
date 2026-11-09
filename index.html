@@ -45,6 +45,7 @@ nav button.on{color:var(--pr)}nav button i{display:block;font-style:normal;font-
 #modal.on{display:flex}#modal .card{max-width:340px;width:100%}
 .warnb{background:var(--card);border:1px solid var(--warn);color:var(--warn);padding:10px;border-radius:10px;margin-bottom:12px;font-size:13px}
 .muted{color:var(--mu);font-size:13px}
+.msg{min-height:20px;margin:10px 0 0;font-size:13px}
 </style>
 </head>
 <body>
@@ -103,6 +104,18 @@ nav button.on{color:var(--pr)}nav button i{display:block;font-style:normal;font-
   <p class="muted">CSV tidak memuat foto. Impor menambahkan data ke data yang ada (JSON dengan opsi ganti).</p>
  </div>
  <div class="card"><h2>Data Contoh</h2><div class="row"><button class="s" id="ls">Muat contoh</button><button class="d" id="ds">Hapus contoh</button></div></div>
+ <div class="card"><h2>Akun</h2>
+  <div class="muted" id="acc"></div>
+  <h2 style="margin-top:16px">Ganti email</h2>
+  <label>Kata sandi saat ini</label><input type="password" id="cpw" autocomplete="current-password" placeholder="Untuk memastikan ini Anda">
+  <label>Email baru</label><input type="email" id="ne" autocomplete="off" placeholder="nama@email.com">
+  <button id="ce" style="margin-top:12px;width:100%">Kirim tautan konfirmasi</button><p class="msg" id="me"></p>
+  <p class="muted">Tautan dikirim ke email lama dan baru. Email baru aktif setelah keduanya ditekan.</p>
+ </div>
+ <div class="card"><h2>Ganti kata sandi</h2>
+  <label>Kata sandi baru (minimal 8 karakter)</label><input type="password" id="np" autocomplete="new-password">
+  <button class="s" id="cp" style="margin-top:12px;width:100%">Ubah kata sandi</button><p class="msg" id="mp"></p>
+ </div>
  <div class="card"><h2>Zona Bahaya</h2><button class="d" id="da">Hapus semua data</button></div>
 </section>
 </main>
@@ -226,10 +239,19 @@ $('#da').onclick=async()=>{if(await ask('Hapus SEMUA data? Pastikan sudah ekspor
 const showLogin=()=>{$('#lg').style.display='flex';$('#lo').style.display='none'};
 async function boot(){if(!sb){$('#lerr').textContent=SUPABASE_URL.startsWith('ISI')?'Isi SUPABASE_URL dan SUPABASE_KEY di index.html dulu.':'Pustaka Supabase gagal dimuat. Periksa internet atau buka lewat browser.';return}
  const{data:{session}}=await sb.auth.getSession();if(!session){showLogin();return}
- $('#lg').style.display='none';$('#lo').style.display='';await load();resetForm();render()}
+ $('#lg').style.display='none';$('#lo').style.display='';$('#acc').textContent='Masuk sebagai '+session.user.email;await load();resetForm();render()}
 $('#li').onclick=async()=>{$('#lerr').textContent='';$('#li').disabled=true;const{error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});$('#li').disabled=false;
  if(error){$('#lerr').textContent='Email atau kata sandi salah.';return}$('#pw').value='';boot()};
 $('#lo').onclick=async()=>{await sb.auth.signOut();D=[];render();showLogin()};
+const msg=(id,t,ok)=>{const e=$(id);e.textContent=t;e.className='msg '+(ok?'pos':'neg')};
+$('#cp').onclick=async()=>{const p=$('#np').value;if(p.length<8)return msg('#mp','Minimal 8 karakter.');$('#cp').disabled=true;const{error}=await sb.auth.updateUser({password:p});$('#cp').disabled=false;if(error)return msg('#mp','Gagal: '+error.message);$('#np').value='';msg('#mp','Kata sandi berhasil diubah.',true)};
+$('#ce').onclick=async()=>{const e=$('#ne').value.trim(),pw=$('#cpw').value;if(!pw)return msg('#me','Isi kata sandi saat ini.');if(!/^\S+@\S+\.\S+$/.test(e))return msg('#me','Format email baru belum benar.');
+ const{data:{session}}=await sb.auth.getSession();if(!session)return msg('#me','Sesi berakhir, silakan masuk lagi.');
+ if(e.toLowerCase()===session.user.email.toLowerCase())return msg('#me','Email baru sama dengan email saat ini.');
+ $('#ce').disabled=true;const r=await sb.auth.signInWithPassword({email:session.user.email,password:pw});
+ if(r.error){$('#ce').disabled=false;return msg('#me','Kata sandi saat ini salah.')}
+ const{error}=await sb.auth.updateUser({email:e},{emailRedirectTo:location.origin+location.pathname});$('#ce').disabled=false;
+ if(error)return msg('#me','Gagal: '+error.message);$('#cpw').value='';$('#ne').value='';msg('#me','Tautan konfirmasi dikirim ke email lama dan baru. Tekan keduanya.',true)};
 boot();
 </script>
 </body>
